@@ -1,5 +1,9 @@
 # Test application
 
+## NOTE
+
+If you have any questions or something is unclear feel free to create an issue ![here](https://github.com/runashop/test-project/issues)
+
 # Description
 
 Picture hosting site with ability to create albums and upload pictures to them. Each picture should be saved as original file and two thumbnails should be created: 100p, 360p and 720p. Thumbnails should be created only if original picture is bigger then thumbnail size.
