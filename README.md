@@ -4,10 +4,10 @@
 
 Picture hosting site with ability to create albums and upload pictures to them. Each picture should be saved as original file and two thumbnails should be created: 100p, 360p and 720p. Thumbnails should be created only if original picture is bigger then thumbnail size.
 
-1. Index page: http://joxi.net/Vrw8OR9sO3z8Ym.jpg
-1. Upload page: http://joxi.net/DmBLpw0SwYQj3A.jpg
-1. Album page: http://joxi.net/DmBLpw0SwYQ83A.jpg
-1. Picture page: http://joxi.net/a2XZpLGs1WdMKr.jpg
+1. Index page: ![Index page](http://joxi.net/Vrw8OR9sO3z8Ym.jpg)
+1. Upload page: ![Upload page](http://joxi.net/DmBLpw0SwYQj3A.jpg)
+1. Album page: ![Album page](http://joxi.net/DmBLpw0SwYQ83A.jpg)
+1. Picture page: ![Picture page](http://joxi.net/a2XZpLGs1WdMKr.jpg)
 
 # Requirements
 
