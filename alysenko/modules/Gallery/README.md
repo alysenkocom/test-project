@@ -41,11 +41,11 @@ Configure the `Gallery` module:
 'urlManager' => [
     .....
     'rules' => [
-        '<module:gallery>/<galleryId:\d+>' => '<module>/default/index',
+        '<module:gallery>/<albumId:\d+>' => '<module>/default/view',
         '<module:gallery>/page/<page:\d+>' => '<module>/default/index',
         '<module:gallery>/create' => '<module>/default/create',
         '<module:gallery>/<galleryId:\d+>/page/<page:\d+>' => '<module>/default/index',
-        '<module:gallery>/image/<imageId:\d+>' => '<module>/image/index',
+        '<module:gallery>/image/<imageId:\d+>' => '<module>/image/view',
         '<module:gallery>/image/upload' => '<module>/image/upload',
         # '' => 'gallery/default/index', // if you want make module as main
     ],
@@ -67,6 +67,22 @@ then console config
       'class' => 'app\modules\Gallery\Module',
   ]
 ],
+```
 
+also you should added new configuration for module:
 
+```
+'params' => [
+    ....
+
+    /** config for `app\modules\Gallery` */
+    'galleryModule' => [
+        'sourcePath' => 'web/uploads/source/',
+        'sizes' => [
+            'small' 	=> [ 'size' => 100, 'defaultImg' => 'http://placehold.it/100x100', 'path' => 'web/uploads/100/' ],
+            'medium' 	=> [ 'size' => 360, 'defaultImg' => 'http://placehold.it/360x360', 'path' => 'web/uploads/360/' ],
+            'large' 	=> [ 'size' => 720, 'defaultImg' => 'http://placehold.it/720x720', 'path' => 'web/uploads/720/' ],
+        ]
+    ],
+]
 ```
