@@ -41,11 +41,11 @@ Configure the `Gallery` module:
 'urlManager' => [
     .....
     'rules' => [
-        '<module:gallery>/<galleryId:\d+>' => '<module>/default/index',
+        '<module:gallery>/<albumId:\d+>' => '<module>/default/view',
         '<module:gallery>/page/<page:\d+>' => '<module>/default/index',
         '<module:gallery>/create' => '<module>/default/create',
         '<module:gallery>/<galleryId:\d+>/page/<page:\d+>' => '<module>/default/index',
-        '<module:gallery>/image/<imageId:\d+>' => '<module>/image/index',
+        '<module:gallery>/image/<imageId:\d+>' => '<module>/image/view',
         '<module:gallery>/image/upload' => '<module>/image/upload',
         # '' => 'gallery/default/index', // if you want make module as main
     ],
