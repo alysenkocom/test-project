@@ -3,6 +3,7 @@
 use \yii\bootstrap\ActiveForm;
 use \yii\widgets\Breadcrumbs;
 use \yii\bootstrap\Html;
+use \yii\helpers\ArrayHelper;
 
 \app\modules\Gallery\assets\GalleryAsset::register($this);
 
@@ -33,7 +34,7 @@ Breadcrumbs::widget(['links' => isset($this->params['breadcrumbs']) ? $this->par
 	<?= $form->field($model, 'source_img')->textInput()->fileInput(['accept' => 'image/*']); ?>
 	<?= $form->field($model, 'title'); ?>
 	<?= $form->field($model, 'description')->textarea(['rows' => '3']); ?>
-	<?= $form->field($model, 'album_id')->dropDownList($albums); ?>
+	<?= $form->field($model, 'album_id')->dropDownList(ArrayHelper::map($albums,'id','name')); ?>
 
     <div class="form-group field-images-album_id required">
         <label class="control-label col-sm-4"></label>

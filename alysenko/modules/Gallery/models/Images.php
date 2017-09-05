@@ -5,6 +5,7 @@ namespace app\modules\Gallery\models;
 use Yii;
 use yii\helpers\Url;
 use \yii\db\ActiveRecord;
+use yii\imagine\Image;
 
 /**
  * This is the model class for table "images".
@@ -17,70 +18,13 @@ use \yii\db\ActiveRecord;
  */
 class Images extends ActiveRecord
 {
-	/**
-	 * @var integer
-	 */
-	const SIZE_SMALL_IMG = 100;
 
 	/**
-	 * @var integer
-	 */
-	const SIZE_MEDIUM_IMG = 360;
-
-	/**
-	 * @var integer
-	 */
-	const SIZE_LARGE_IMG = 720;
-
-	/**
-	 * @var string
-	 */
-	const PATH_UPLOAD = 'web/uploads/';
-
-	/**
-	 * @var string
-	 */
-	const PATH_SOURCE_IMG = self::PATH_UPLOAD . 'source/';
-
-	/**
-	 * @var string
-	 */
-	const PATH_SMALL_IMG = self::PATH_UPLOAD . '100/';
-
-	/**
-	 * @var string
-	 */
-	const PATH_MEDIUM_IMG = self::PATH_UPLOAD . '360/';
-
-	/**
-	 * @var string
-	 */
-	const PATH_LARGE_IMG = self::PATH_UPLOAD . '720/';
-
-	/**
+	 * images properties
+	 *
 	 * @var array
 	 */
-	private $defaultImages = [
-		'source' => 'http://placehold.it/100x100',
-		'small' => 'http://placehold.it/100x100',
-		'medium' => 'http://placehold.it/360x360',
-		'large' => 'http://placehold.it/720x720',
-	];
-
-	/**
-	 * @var string
-	 */
-	public $small_img = 'http://placehold.it/100x100';
-
-	/**
-	 * @var string
-	 */
-	public $medium_img = 'http://placehold.it/360x360';
-
-	/**
-	 * @var string
-	 */
-	public $large_img = 'http://placehold.it/720x720';
+	public $images = [];
 
 	/**
 	 * @return array
@@ -96,24 +40,7 @@ class Images extends ActiveRecord
 	 * images
 	 */
 	public function afterFind() {
-
-		$fullPath = Yii::getAlias('@app') . '/';
-
-		/** check `small` */
-		if (file_exists($fullPath . self::PATH_SMALL_IMG . $this->source_img)) {
-			$this->small_img = Url::home(true) . self::PATH_SMALL_IMG . $this->source_img;
-		}
-
-		/** check `medium` */
-		if (file_exists($fullPath . self::PATH_MEDIUM_IMG . $this->source_img)) {
-			$this->medium_img = Url::home(true) . self::PATH_MEDIUM_IMG . $this->source_img;
-		}
-
-		/** check `large` */
-		if (file_exists($fullPath . self::PATH_LARGE_IMG . $this->source_img)) {
-			$this->large_img = Url::home(true) . self::PATH_LARGE_IMG . $this->source_img;
-		}
-
+		$this->images = $this->getImages($this);
 	}
 
     /**
@@ -154,41 +81,58 @@ class Images extends ActiveRecord
     }
 
 	/**
-	 * @param null / integer $imageId
+	 * @param null / integer $imageObject
 	 *
 	 * @return array
 	 */
-    public function getImages($imageId = null) {
-    	$imagesPath = $this->defaultImages;
+    public function getImages($imageObject = null) {
+		$imagesPath = [];
+		$fullPath = Yii::getAlias('@app') . '/';
+		foreach (Yii::$app->params['galleryModule']['sizes'] as $type => $imageData) {
+			$resultImage = $imageData['defaultImg'];
+			if (! is_null($imageObject) && file_exists($fullPath . $imageData['path'] . $imageObject->source_img)) {
+				$resultImage = Url::home(true) . $imageData['path'] . $imageObject->source_img;
+			}
 
-    	if (! is_null($imageId)) {
-			$imagesObjects = self::findOne($imageId);
-			if (! is_null($imagesObjects)) {
-				$fullPath = Yii::getAlias('@app') . '/';
+			$imagesPath[$type] = $resultImage;
+		}
 
-				/** check `source` */
-				if (file_exists($fullPath . self::PATH_SOURCE_IMG . $imagesObjects->source_img)) {
-					$imagesPath['source'] = Url::home(true) . self::PATH_SOURCE_IMG . $imagesObjects->source_img;
-				}
+		return $imagesPath;
+	}
 
-				/** check `small` */
-				if (file_exists($fullPath . self::PATH_SMALL_IMG . $imagesObjects->source_img)) {
-					$imagesPath['small'] = Url::home(true) . self::PATH_SMALL_IMG . $imagesObjects->source_img;
-				}
+	/**
+	 * Create thumbnails
+	 *
+	 * @param string $sourceImgName
+	 * @return array
+	 */
+	public function createThumbnails($sourceImgName) {
+		$returnResult = [];
+		$moduleConfigure = Yii::$app->params['galleryModule'];
+		$fullPath = Yii::getAlias('@app') . '/';
+		$sourceImage = $fullPath . $moduleConfigure['sourcePath'] . $sourceImgName;
+		$sourceImageDataObject = Image::getImagine()->open($sourceImage)->getSize();
 
-				/** check `medium` */
-				if (file_exists($fullPath . self::PATH_MEDIUM_IMG . $imagesObjects->source_img)) {
-					$imagesPath['medium'] = Url::home(true) . self::PATH_MEDIUM_IMG . $imagesObjects->source_img;
-				}
+    	if (file_exists($sourceImage)) {
+			foreach ($moduleConfigure['sizes'] as $type => $imageData) {
+				$imagePath = $fullPath . $imageData['path'] . $sourceImgName;
+				if (! file_exists($imagePath)) {
+					if (
+						$sourceImageDataObject->getWidth() > $imageData['size'] ||
+						$sourceImageDataObject->getHeight() > $imageData['size']
+					) {
+						$return = Image::thumbnail($sourceImage, $imageData['size'], $imageData['size'])
+										->save($imagePath, ['quality' => 100]);
 
-				/** check `large` */
-				if (file_exists($fullPath . self::PATH_LARGE_IMG . $imagesObjects->source_img)) {
-					$imagesPath['large'] = Url::home(true) . self::PATH_LARGE_IMG . $imagesObjects->source_img;
+						if (! is_null($return)) {
+							$returnResult[$type] = $return;
+						}
+					}
 				}
 			}
 		}
 
-    	return $imagesPath;
+		return $returnResult;
 	}
 
 }

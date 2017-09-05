@@ -17,7 +17,7 @@ Breadcrumbs::widget([ 'links' => isset($this->params['breadcrumbs']) ? $this->pa
     </h1>
     <div class="thumbnail">
         <a target="_blank" href="<?= Url::to('@web/uploads/source/' . $model->source_img); ?>">
-            <img src="<?= $model->large_img; ?>" alt="">
+            <img src="<?= $model->images['large']; ?>" alt="">
         </a>
         <?= Html::encode($model->description); ?>
     </div>

@@ -37,11 +37,7 @@ class Albums extends ActiveRecord
 	public function afterFind()
 	{
 		$model = Images::find()->where(['album_id' => $this->id])->orderBy('id desc')->one();
-		if (! is_null($model)) {
-			$this->images = (new Images())->getImages($model->id);
-		} else {
-			$this->images = (new Images())->getImages();
-		}
+		$this->images = (new Images())->getImages($model);
 	}
 
     /**

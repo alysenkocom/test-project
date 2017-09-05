@@ -28,32 +28,26 @@ class ImageController extends Controller
 	/**
 	 * The default action. Show image page.
 	 *
-	 * @param null/id $imageId
+	 * @param integer $imageId
 	 *
 	 * @return string
 	 * @throws NotFoundHttpException
 	 */
-	public function actionIndex($imageId = null)
-	{
-		if (! is_null($imageId)) {
-
-			$imageModel = Images::findOne($imageId);
-			if ($imageModel) {
-				/** set title */
-				$this->view->title = Yii::$app->name . ' - Gallery - ' . $imageModel->title;
-
-				$albumModel = Albums::find()->where(['id' => $imageModel->album_id])->one();
-
-				return $this->render('view',[
-					'model' => $imageModel,
-					'album' => $albumModel
-				]);
-			} else {
-				throw new NotFoundHttpException('not found');
-			}
-		} else {
-			throw new NotFoundHttpException('not found');
+	public function actionView($imageId) {
+		$imageModel = Images::findOne($imageId);
+		if (!$imageModel) {
+			throw new NotFoundHttpException;
 		}
+
+		/** set title */
+		$this->view->title = Yii::$app->name . ' - Gallery - ' . $imageModel->title;
+
+		$albumModel = Albums::find()->where(['id' => $imageModel->album_id])->one();
+
+		return $this->render('view', [
+			'model' => $imageModel,
+			'album' => $albumModel
+		]);
 	}
 
 	/**
@@ -84,11 +78,10 @@ class ImageController extends Controller
 			}
 		} else {
 			$albumsObjects = Albums::find()->all();
-			$albums = ArrayHelper::map($albumsObjects,'id','name');
 
-			return $this->render('index',[
+			return $this->render('index', [
 				'model' => $imageModel,
-				'albums' => $albums
+				'albums' => $albumsObjects
 			]);
 		}
 	}

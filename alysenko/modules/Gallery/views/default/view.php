@@ -33,7 +33,7 @@ Breadcrumbs::widget(['links' => isset($this->params['breadcrumbs']) ? $this->par
         <div class="row">
             <div class="col-md-2 text-center">
                 <a data-pjax="0" class="thumbnail" href="<?= Url::to('/gallery/image/' . $image->id); ?>">
-                    <img class="img-responsive" style="display:inline-block;" src="<?= $image->small_img ?>" alt="">
+                    <img class="img-responsive" style="display:inline-block;" src="<?= $image->images['small'] ?>" alt="">
                 </a>
             </div>
             <div class="col-md-10">

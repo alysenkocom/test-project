@@ -2,17 +2,17 @@
 
 namespace app\modules\Gallery\controllers;
 
-use app\modules\Gallery\models\DaemonImages;
 use Yii;
-use app\modules\Gallery\models\Images;
-use app\modules\Gallery\models\Albums;
-use yii\data\Pagination;
-use yii\imagine\Image;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use app\modules\Gallery\models\Images;
+use app\modules\Gallery\models\Albums;
 
 /**
- * Default controller for the `Gallery` module
+ * Class DefaultController
+ *
+ * @package app\modules\Gallery\controllers
  */
 class DefaultController extends Controller
 {
@@ -40,54 +40,59 @@ class DefaultController extends Controller
 	}
 
 	/**
-	 * @param null/id $galleryId
-	 *
 	 * @return string
-	 * @throws \yii\web\NotFoundHttpException
 	 */
-    public function actionIndex($galleryId = null)
+    public function actionIndex()
     {
-    	if (! is_null($galleryId)) {
+		/** set title */
+		$this->view->title = Yii::$app->name . ' - Gallery';
+		$albumsModel = new Albums();
 
-			$modelAlbum = Albums::findOne($galleryId);
-			if (! is_null($modelAlbum)) {
+		$query = Albums::find()->orderBy('id desc');
+		$provider = new ActiveDataProvider([
+			'query' => $query,
+			'pagination' => [
+				'pageSize' => self::ALBUMS_PAGINATION_SIZE,
+			],
+		]);
 
-				/** set title */
-				$this->view->title = Yii::$app->name . ' - Gallery - ' . $modelAlbum->name;
-
-				$imagesObjects = Images::find()->where(['album_id' => $galleryId])->orderBy('id desc');
-				$pages = new Pagination(['totalCount' => $imagesObjects->count(), 'pageSize' => self::IMAGES_PAGINATION_SIZE]);
-				$pages->pageSizeParam = false;
-				$imageObjects = $imagesObjects->offset($pages->offset)->limit($pages->limit)->all();
-
-				return $this->render('view',[
-					'model' => $modelAlbum,
-					'images' => $imageObjects,
-					'pages' => $pages
-				]);
-			} else {
-				throw new NotFoundHttpException('Album not found.');
-			}
-
-		} else {
-
-			/** set title */
-			$this->view->title = Yii::$app->name . ' - Gallery';
-
-			$albumsModel = new Albums();
-			$albumsObjects = Albums::find()->orderBy('id desc');
-
-			$pages = new Pagination(['totalCount' => $albumsObjects->count(), 'pageSize' => self::ALBUMS_PAGINATION_SIZE]);
-			$pages->pageSizeParam = false;
-			$albumsObjects = $albumsObjects->offset($pages->offset)->limit($pages->limit)->all();
-
-			return $this->render('index',[
-				'model' => $albumsModel,
-				'albumsObjects' => $albumsObjects,
-				'pages' => $pages
-			]);
-		}
+		return $this->render('index',[
+			'model' => $albumsModel,
+			'albumsObjects' => $provider->models,
+			'pages' => $provider->pagination
+		]);
     }
+
+	/**
+	 * @param integer $albumId
+	 * @return string
+	 *
+	 * @throws NotFoundHttpException
+	 */
+    public function actionView($albumId) {
+
+		$modelAlbum = Albums::findOne($albumId);
+		if (!$modelAlbum) {
+			throw new NotFoundHttpException;
+		}
+
+		/** set title */
+		$this->view->title = Yii::$app->name . ' - Gallery - ' . $modelAlbum->name;
+
+		$query = Images::find()->where(['album_id' => $modelAlbum->id])->orderBy('id desc');
+		$provider = new ActiveDataProvider([
+			'query' => $query,
+			'pagination' => [
+				'pageSize' => self::IMAGES_PAGINATION_SIZE,
+			],
+		]);
+
+		return $this->render('view',[
+			'model' => $modelAlbum,
+			'images' => $provider->models,
+			'pages' => $provider->pagination
+		]);
+	}
 
 	/**
 	 * @return string
